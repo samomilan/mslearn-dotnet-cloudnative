@@ -8,7 +8,8 @@ public static class DiagnosticServiceCollectionExtensions
 {
     public static IServiceCollection AddObservability(this IServiceCollection services,
         string serviceName,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        string[]? meeterNames = null)
     {
         // create the resource that references the service name passed in
         var resource = ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: "1.0");
@@ -35,6 +36,13 @@ public static class DiagnosticServiceCollectionExtensions
                     })
                     .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel")
                     .AddPrometheusExporter();
+
+                // add any additional meters provided by the caller
+                if (meeterNames == null) return;
+                foreach (var name in meeterNames)
+                {
+                    metrics.AddMeter(name);
+                }
 
             })
             // add the tracing providers
