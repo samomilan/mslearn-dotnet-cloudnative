@@ -34,7 +34,7 @@ public static class DiagnosticServiceCollectionExtensions
                             "System.Net.Sockets");
                     })
                     .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel")
-                    .AddConsoleExporter();
+                    .AddPrometheusExporter();
 
             })
             // add the tracing providers
@@ -43,9 +43,19 @@ public static class DiagnosticServiceCollectionExtensions
                 tracing.SetResourceBuilder(resource)
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSqlClientInstrumentation();
+                    .AddSqlClientInstrumentation()
+                    .AddZipkinExporter(zipkin =>
+                    {
+                        var zipkinUrl = configuration["ZIPKIN_URL"] ?? "http://zipkin:9411";
+                        zipkin.Endpoint = new Uri($"{zipkinUrl}/api/v2/spans");
+                    });
             });
 
         return services;
+    }
+    
+    public static void MapObservability(this IEndpointRouteBuilder routes)
+    {
+        routes.MapPrometheusScrapingEndpoint();
     }
 }

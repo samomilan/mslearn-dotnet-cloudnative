@@ -7,10 +7,9 @@ COPY "eShopLite/DataEntities" .
 RUN dotnet publish -c release -o /app
 
 WORKDIR /src
-COPY "eShopLite/Products/Products.csproj" .
-RUN dotnet restore
-COPY "eShopLite/Products" .
-RUN dotnet publish -c release -o /app
+COPY "eShopLite" .
+RUN dotnet restore Products/Products.csproj
+RUN dotnet publish Products/Products.csproj -c release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
